@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  deleteAdmin,
   getAllAdmin,
   getSingleAdminById,
   updateAdmin,
@@ -10,5 +11,6 @@ const adminRoutes = Router();
 adminRoutes.get("/", getAllAdmin);
 adminRoutes.get("/:id", getSingleAdminById);
 adminRoutes.patch("/:id", updateAdmin);
+adminRoutes.delete("/:id", deleteAdmin);
 
 export default adminRoutes;
