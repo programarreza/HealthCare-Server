@@ -3,6 +3,7 @@ import {
   deleteAdmin,
   getAllAdmin,
   getSingleAdminById,
+  softDeleteAdmin,
   updateAdmin,
 } from "./admin.controller";
 
@@ -12,5 +13,6 @@ adminRoutes.get("/", getAllAdmin);
 adminRoutes.get("/:id", getSingleAdminById);
 adminRoutes.patch("/:id", updateAdmin);
 adminRoutes.delete("/:id", deleteAdmin);
+adminRoutes.delete("/soft/:id", softDeleteAdmin);
 
 export default adminRoutes;

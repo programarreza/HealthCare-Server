@@ -5,6 +5,7 @@ import {
   deleteAdminIntoDB,
   getAllAdminsFromDB,
   getSingleAdminByIdFromDB,
+  softDeleteAdminIntoDB,
   updateAdminIntoDB,
 } from "./admin.service";
 
@@ -88,4 +89,29 @@ const deleteAdmin = async (req: Request, res: Response) => {
   }
 };
 
-export { deleteAdmin, getAllAdmin, getSingleAdminById, updateAdmin };
+const softDeleteAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await softDeleteAdminIntoDB(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Admin deleted successfully!",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.name || "Something went wrong",
+      error: error,
+    });
+  }
+};
+
+export {
+  deleteAdmin,
+  getAllAdmin,
+  getSingleAdminById,
+  softDeleteAdmin,
+  updateAdmin,
+};
