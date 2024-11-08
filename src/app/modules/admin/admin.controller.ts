@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
@@ -11,25 +11,31 @@ import {
   updateAdminIntoDB,
 } from "./admin.service";
 
-const getAllAdmin = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const filter = pick(req.query, adminFilterableFields);
-    const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
-    console.log("options", options);
-
-    const result = await getAllAdminsFromDB(filter, options);
-
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admins retrieved successfully!",
-      meta: result.meta,
-      data: result.data,
-    });
-  } catch (error) {
-    next(error);
-  }
+const catchAsync = (fn: RequestHandler) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
 };
+
+const getAllAdmin: RequestHandler = catchAsync(async (req, res) => {
+  const filter = pick(req.query, adminFilterableFields);
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+  console.log("options", options);
+
+  const result = await getAllAdminsFromDB(filter, options);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admins retrieved successfully!",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 const getSingleAdminById = async (
   req: Request,
