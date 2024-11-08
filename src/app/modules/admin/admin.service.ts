@@ -1,9 +1,14 @@
 import { Admin, Prisma, UserStatus } from "@prisma/client";
 import { calculatePagination } from "../../../helpers/pagination.helpers";
 import prisma from "../../../shared/prisma";
+import { TPaginationOptions } from "../../interfaces/TPasination";
 import { adminSearchAbleField } from "./admin.constant";
+import { TAdminFilterRequest } from "./admin.interface";
 
-const getAllAdminsFromDB = async (params: any, options: any) => {
+const getAllAdminsFromDB = async (
+  params: TAdminFilterRequest,
+  options: TPaginationOptions
+) => {
   const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
   const { searchTerm, ...filterData } = params;
   const andConditions: Prisma.AdminWhereInput[] = [];
