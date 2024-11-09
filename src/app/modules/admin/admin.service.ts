@@ -9,7 +9,9 @@ const getAllAdminsFromDB = async (
   params: TAdminFilterRequest,
   options: TPaginationOptions
 ) => {
-  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(
+    options as any
+  );
   const { searchTerm, ...filterData } = params;
   const andConditions: Prisma.AdminWhereInput[] = [];
 
@@ -28,7 +30,7 @@ const getAllAdminsFromDB = async (
     andConditions.push({
       AND: Object.keys(filterData).map((key) => ({
         [key]: {
-          equals: filterData[key],
+          equals: (filterData as any)[key],
         },
       })),
     });
