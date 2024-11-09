@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
-import { loginUserFromDB } from "./auth.service";
+import { loginUserFromDB, refreshTokenIntoDB } from "./auth.service";
 
 const loginUser = catchAsync(async (req, res) => {
   const { accessToken, refreshToken, needPasswordChange } =
@@ -23,4 +23,16 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
-export { loginUser };
+const refreshToken = catchAsync(async (req, res) => {
+  const { refreshToken } = req.cookies;
+  const result = await refreshTokenIntoDB(refreshToken);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "token generate successfully!",
+    data: result,
+  });
+});
+
+export { loginUser, refreshToken };
