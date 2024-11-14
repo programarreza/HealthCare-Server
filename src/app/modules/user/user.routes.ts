@@ -4,6 +4,6 @@ import { createAdmin } from "./user.controller";
 
 const userRoutes = Router();
 
-userRoutes.post("/", auth("ADMIN, SUPER_ADMIN"), createAdmin);
+userRoutes.post("/", auth("ADMIN", "SUPER_ADMIN"), createAdmin);
 
 export default userRoutes;
