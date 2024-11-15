@@ -6,7 +6,11 @@ import config from "../config";
 import ApiError from "../error/ApiError";
 
 const auth = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (
+    req: Request & { user?: any },
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const token = req.headers.authorization;
 
@@ -18,6 +22,8 @@ const auth = (...roles: string[]) => {
         token,
         config.jwt_access_secret as Secret
       );
+
+      req.user = verifiedUser;
 
       if (roles.length && !roles.includes(verifiedUser.role)) {
         throw new ApiError(StatusCodes.FORBIDDEN, "Forbidden!");
