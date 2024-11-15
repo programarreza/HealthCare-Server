@@ -1,8 +1,10 @@
 import { UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
 import { generateToken, verifyToken } from "../../../helpers/jwtHelpers";
 import prisma from "../../../shared/prisma";
 import config from "../../config";
+import ApiError from "../../error/ApiError";
 
 const loginUserFromDB = async (payload: {
   email: string;
@@ -54,7 +56,7 @@ const refreshTokenIntoDB = async (token: string) => {
   try {
     decodedData = verifyToken(token, config.jwt_refresh_secret as string);
   } catch (error) {
-    throw new Error("You are not authorized!");
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "You are not authorized!");
   }
 
   const userData = await prisma.user.findUniqueOrThrow({

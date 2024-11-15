@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import { Secret } from "jsonwebtoken";
 import { verifyToken } from "../../helpers/jwtHelpers";
 import config from "../config";
+import ApiError from "../error/ApiError";
 
 const auth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -9,7 +11,7 @@ const auth = (...roles: string[]) => {
       const token = req.headers.authorization;
 
       if (!token) {
-        throw new Error("You are not authorized!");
+        throw new ApiError(StatusCodes.UNAUTHORIZED, "You are not authorized!");
       }
 
       const verifiedUser = verifyToken(
@@ -18,7 +20,7 @@ const auth = (...roles: string[]) => {
       );
 
       if (roles.length && !roles.includes(verifiedUser.role)) {
-        throw new Error("You are not authorized!");
+        throw new ApiError(StatusCodes.FORBIDDEN, "Forbidden!");
       }
 
       next();
