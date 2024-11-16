@@ -5,6 +5,7 @@ import { generateToken, verifyToken } from "../../../helpers/jwtHelpers";
 import prisma from "../../../shared/prisma";
 import config from "../../config";
 import ApiError from "../../error/ApiError";
+import emailSender from "./emailSender";
 
 const loginUserFromDB = async (payload: {
   email: string;
@@ -82,7 +83,7 @@ const changePasswordIntoDB = async (user: any, payload: any) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
-      status: "ACTIVE",
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -114,4 +115,55 @@ const changePasswordIntoDB = async (user: any, payload: any) => {
   };
 };
 
-export { changePasswordIntoDB, loginUserFromDB, refreshTokenIntoDB };
+const forgotPasswordIntoDB = async (payload: { email: string }) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const userInfo = {
+    email: userData.email,
+    role: userData.role,
+  };
+
+  const resetPassToken = generateToken(
+    userInfo,
+    config.jwt_reset_pass_secret as string,
+    config.jwt_reset_pass_token_expires_in as string
+  );
+
+  // http://localhost:3000/reset-pass?email=reza@gmail.com&token=ncnlcnzxncznccnxzc
+
+  const resetPassLink =
+    config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`;
+
+  await emailSender(
+    userData.email,
+    `
+    <div>
+    <p>Dear User</p>
+    <p>You requested a password reset for your HealthCare account. Please click the link below to reset your password:</p>
+    <a href=${resetPassLink}>
+      <button>
+        Reset Password Link
+      </button>
+    </a>
+
+    <p>Note: This link is valid for only 5 minutes. If you did not request this change, please ignore this message.</p>
+
+    <p>Stay safe,</p>
+    <p>The HealthCare Team</p>
+    
+    </div>
+    `
+  );
+};
+
+export {
+  changePasswordIntoDB,
+  forgotPasswordIntoDB,
+  loginUserFromDB,
+  refreshTokenIntoDB,
+};

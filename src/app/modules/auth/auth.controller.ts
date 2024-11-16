@@ -4,6 +4,7 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import {
   changePasswordIntoDB,
+  forgotPasswordIntoDB,
   loginUserFromDB,
   refreshTokenIntoDB,
 } from "./auth.service";
@@ -54,4 +55,15 @@ const changePassword = catchAsync(
   }
 );
 
-export { changePassword, loginUser, refreshToken };
+const forgotPassword = catchAsync(async (req, res) => {
+  const result = await forgotPasswordIntoDB(req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "forgot password link send successfully!",
+    data: result,
+  });
+});
+
+export { changePassword, forgotPassword, loginUser, refreshToken };
