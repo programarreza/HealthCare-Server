@@ -7,6 +7,7 @@ import {
   forgotPasswordIntoDB,
   loginUserFromDB,
   refreshTokenIntoDB,
+  resetPasswordIntoDB,
 } from "./auth.service";
 
 const loginUser = catchAsync(async (req, res) => {
@@ -66,4 +67,22 @@ const forgotPassword = catchAsync(async (req, res) => {
   });
 });
 
-export { changePassword, forgotPassword, loginUser, refreshToken };
+const resetPassword = catchAsync(async (req, res) => {
+  const token = req.headers.authorization || "";
+  const result = await resetPasswordIntoDB(token, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "reset password successfully!",
+    data: result,
+  });
+});
+
+export {
+  changePassword,
+  forgotPassword,
+  loginUser,
+  refreshToken,
+  resetPassword,
+};

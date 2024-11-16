@@ -6,6 +6,7 @@ import {
   forgotPassword,
   loginUser,
   refreshToken,
+  resetPassword,
 } from "./auth.controller";
 
 const authRoutes = Router();
@@ -16,6 +17,8 @@ authRoutes.post(
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
   changePassword
 );
+
 authRoutes.post("/forgot-password", forgotPassword);
+authRoutes.post("/reset-password", resetPassword);
 
 export default authRoutes;

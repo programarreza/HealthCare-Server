@@ -1,6 +1,7 @@
 import { UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
+import { Secret } from "jsonwebtoken";
 import { generateToken, verifyToken } from "../../../helpers/jwtHelpers";
 import prisma from "../../../shared/prisma";
 import config from "../../config";
@@ -161,9 +162,50 @@ const forgotPasswordIntoDB = async (payload: { email: string }) => {
   );
 };
 
+const resetPasswordIntoDB = async (
+  token: string,
+  payload: { id: string; password: string }
+) => {
+  console.log(token, payload);
+
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: payload.id,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const isValidToken = verifyToken(
+    token,
+    config.jwt_reset_pass_secret as Secret
+  );
+
+  if (!isValidToken) {
+    throw new ApiError(StatusCodes.FORBIDDEN, "Forbidden!");
+  }
+
+  // hash password
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  // update password
+  await prisma.user.update({
+    where: {
+      id: userData.id,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+
+  return {
+    message: "Password reset successfully!",
+  };
+};
+
 export {
   changePasswordIntoDB,
   forgotPasswordIntoDB,
   loginUserFromDB,
   refreshTokenIntoDB,
+  resetPasswordIntoDB,
 };
