@@ -8,6 +8,7 @@ import {
   createDoctorIntoDB,
   createPatientIntoDB,
   getAllUsersFromDB,
+  updateUserStatusIntoDB,
 } from "./user.service";
 
 const createAdmin = catchAsync(async (req, res) => {
@@ -58,4 +59,22 @@ const getAllUsers = catchAsync(async (req, res) => {
   });
 });
 
-export { createAdmin, createDoctor, createPatient, getAllUsers };
+const updateUserStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await updateUserStatusIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User status updated successfully!",
+    data: result,
+  });
+});
+
+export {
+  createAdmin,
+  createDoctor,
+  createPatient,
+  getAllUsers,
+  updateUserStatus,
+};

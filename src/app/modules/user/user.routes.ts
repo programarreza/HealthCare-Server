@@ -7,6 +7,7 @@ import {
   createDoctor,
   createPatient,
   getAllUsers,
+  updateUserStatus,
 } from "./user.controller";
 import {
   createAdminSchemaValidation,
@@ -43,6 +44,12 @@ userRoutes.post(
     req.body = createPatientSchemaValidation.parse(JSON.parse(req.body.data));
     return createPatient(req, res, next);
   }
+);
+
+userRoutes.patch(
+  "/:id/status",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  updateUserStatus
 );
 
 userRoutes.get("/", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN), getAllUsers);
