@@ -2,7 +2,12 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Response, Router } from "express";
 import { upload } from "../../../helpers/fileUploader";
 import auth from "../../middleware/auth";
-import { createAdmin, createDoctor, createPatient } from "./user.controller";
+import {
+  createAdmin,
+  createDoctor,
+  createPatient,
+  getAllUsers,
+} from "./user.controller";
 import {
   createAdminSchemaValidation,
   createDoctorSchemaValidation,
@@ -39,5 +44,7 @@ userRoutes.post(
     return createPatient(req, res, next);
   }
 );
+
+userRoutes.get("/", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN), getAllUsers);
 
 export default userRoutes;

@@ -14,7 +14,6 @@ import {
 const getAllAdmin = catchAsync(async (req, res) => {
   const filter = pick(req.query, adminFilterableFields);
   const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
-  console.log("options", options);
 
   const result = await getAllAdminsFromDB(filter, options);
 
