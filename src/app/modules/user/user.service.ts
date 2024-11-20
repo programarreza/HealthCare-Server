@@ -1,4 +1,4 @@
-import { Prisma, UserRole, UserStatus } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { Request } from "express";
 import { uploadToCloudinary } from "../../../helpers/fileUploader";
@@ -170,10 +170,7 @@ const getAllUsersFromDB = async (params: any, options: TPaginationOptions) => {
   };
 };
 
-const updateUserStatusIntoDB = async (
-  id: string,
-  data: { status: any }
-) => {
+const updateUserStatusIntoDB = async (id: string, data: { status: any }) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       id,
@@ -182,7 +179,7 @@ const updateUserStatusIntoDB = async (
 
   const updateUserStatus = await prisma.user.update({
     where: {
-      id
+      id,
     },
     data,
   });
@@ -190,10 +187,56 @@ const updateUserStatusIntoDB = async (
   return updateUserStatus;
 };
 
+const getProfileFromDB = async (user) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      needPasswordChange: true,
+      status: true,
+    },
+  });
+
+  let userInfo;
+
+  if (userData?.role === UserRole.SUPER_ADMIN) {
+    userInfo = await prisma.admin.findUnique({
+      where: {
+        email: userData.email,
+      },
+    });
+  } else if (userData?.role === UserRole.ADMIN) {
+    userInfo = await prisma.admin.findUnique({
+      where: {
+        email: userData.email,
+      },
+    });
+  } else if (userData?.role === UserRole.DOCTOR) {
+    userInfo = await prisma.doctor.findUnique({
+      where: {
+        email: userData.email,
+      },
+    });
+  } else if (userData?.role === UserRole.PATIENT) {
+    userInfo = await prisma.patient.findUnique({
+      where: {
+        email: userData.email,
+      },
+    });
+  }
+
+  return { ...userData, ...userInfo };
+};
+
 export {
   createAdminIntoDB,
   createDoctorIntoDB,
   createPatientIntoDB,
   getAllUsersFromDB,
+  getProfileFromDB,
   updateUserStatusIntoDB,
 };

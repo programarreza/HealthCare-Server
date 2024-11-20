@@ -7,6 +7,7 @@ import {
   createDoctor,
   createPatient,
   getAllUsers,
+  getProfile,
   updateUserStatus,
 } from "./user.controller";
 import {
@@ -53,5 +54,10 @@ userRoutes.patch(
 );
 
 userRoutes.get("/", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN), getAllUsers);
+userRoutes.get(
+  "/me",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  getProfile
+);
 
 export default userRoutes;
