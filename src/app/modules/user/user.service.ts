@@ -1,6 +1,7 @@
-import { Prisma, UserRole } from "@prisma/client";
+import { Prisma, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { Request } from "express";
+import { JwtPayload } from "jsonwebtoken";
 import { uploadToCloudinary } from "../../../helpers/fileUploader";
 import { calculatePagination } from "../../../helpers/pagination.helpers";
 import prisma from "../../../shared/prisma";
@@ -187,10 +188,11 @@ const updateUserStatusIntoDB = async (id: string, data: { status: any }) => {
   return updateUserStatus;
 };
 
-const getProfileFromDB = async (user) => {
+const getProfileFromDB = async (user: JwtPayload) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
+      status: UserStatus.ACTIVE,
     },
     select: {
       id: true,
@@ -232,11 +234,61 @@ const getProfileFromDB = async (user) => {
   return { ...userData, ...userInfo };
 };
 
+const UpdateProfileFromDB = async (user: JwtPayload, req: Request) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const file = req.file;
+  if (file) {
+    const uploadedCloudinary = await uploadToCloudinary(file);
+    req.body.profilePhoto = uploadedCloudinary?.secure_url;
+  }
+
+  let userInfo;
+
+  if (userData?.role === UserRole.SUPER_ADMIN) {
+    userInfo = await prisma.admin.update({
+      where: {
+        email: userData.email,
+      },
+      data: req.body,
+    });
+  } else if (userData?.role === UserRole.ADMIN) {
+    userInfo = await prisma.admin.update({
+      where: {
+        email: userData.email,
+      },
+      data: req.body,
+    });
+  } else if (userData?.role === UserRole.DOCTOR) {
+    userInfo = await prisma.doctor.update({
+      where: {
+        email: userData.email,
+      },
+      data: req.body,
+    });
+  } else if (userData?.role === UserRole.PATIENT) {
+    userInfo = await prisma.patient.update({
+      where: {
+        email: userData.email,
+      },
+      data: req.body,
+    });
+  }
+
+  return userInfo;
+};
+
 export {
   createAdminIntoDB,
   createDoctorIntoDB,
   createPatientIntoDB,
   getAllUsersFromDB,
   getProfileFromDB,
+  UpdateProfileFromDB,
   updateUserStatusIntoDB,
 };

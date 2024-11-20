@@ -9,6 +9,7 @@ import {
   createPatientIntoDB,
   getAllUsersFromDB,
   getProfileFromDB,
+  UpdateProfileFromDB,
   updateUserStatusIntoDB,
 } from "./user.service";
 
@@ -84,11 +85,24 @@ const getProfile = catchAsync(async (req, res) => {
   });
 });
 
+const updateProfile = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await UpdateProfileFromDB(user, req);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Profile updated successfully!",
+    data: result,
+  });
+});
+
 export {
   createAdmin,
   createDoctor,
   createPatient,
   getAllUsers,
   getProfile,
+  updateProfile,
   updateUserStatus,
 };

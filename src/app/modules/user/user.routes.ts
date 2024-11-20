@@ -8,6 +8,7 @@ import {
   createPatient,
   getAllUsers,
   getProfile,
+  updateProfile,
   updateUserStatus,
 } from "./user.controller";
 import {
@@ -58,6 +59,16 @@ userRoutes.get(
   "/me",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
   getProfile
+);
+
+userRoutes.patch(
+  "/update-profile",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    return updateProfile(req, res, next);
+  }
 );
 
 export default userRoutes;
