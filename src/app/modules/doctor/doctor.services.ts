@@ -10,4 +10,15 @@ const getAllDoctorsFromDB = async () => {
   return result;
 };
 
-export { getAllDoctorsFromDB };
+const getSingleDoctorFromDB = async (id: string) => {
+  // find doctor
+  const result = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
+export { getAllDoctorsFromDB, getSingleDoctorFromDB };
