@@ -35,4 +35,36 @@ const getAllSpecialtiesFromDB = async () => {
   return result;
 };
 
-export { createSpecialtiesIntoDB, getAllSpecialtiesFromDB };
+const deleteSpecialtiesIntoDB = async (id: string) => {
+  // find the specialties
+  const specialties = await prisma.specialties.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  // delete from DoctorSpecialties and specialties table data
+  const result = await prisma.$transaction(async (transactionClient) => {
+    // step-1
+    await transactionClient.doctorSpecialties.deleteMany({
+      where: {
+        specialtiesId: specialties.id,
+      },
+    });
+
+    // step-2
+    await transactionClient.specialties.delete({
+      where: {
+        id: specialties.id,
+      },
+    });
+
+    return null;
+  });
+};
+
+export {
+  createSpecialtiesIntoDB,
+  deleteSpecialtiesIntoDB,
+  getAllSpecialtiesFromDB,
+};

@@ -2,7 +2,11 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Response, Router } from "express";
 import { upload } from "../../../helpers/fileUploader";
 import auth from "../../middleware/auth";
-import { createSpecialties, getAllSpecialties } from "./specialties.controller";
+import {
+  createSpecialties,
+  deleteSpecialties,
+  getAllSpecialties,
+} from "./specialties.controller";
 import { createSpecialtiesSchemaValidation } from "./specialties.validation";
 
 const specialtiesRoutes = Router();
@@ -23,6 +27,12 @@ specialtiesRoutes.get(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
   getAllSpecialties
+);
+
+specialtiesRoutes.delete(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  deleteSpecialties
 );
 
 export default specialtiesRoutes;
