@@ -1,7 +1,12 @@
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
-import { getAllDoctorsFromDB, getSingleDoctorFromDB } from "./doctor.services";
+import {
+  deleteDoctorIntoDB,
+  getAllDoctorsFromDB,
+  getSingleDoctorFromDB,
+  softDeleteDoctorIntoDB,
+} from "./doctor.services";
 
 const getAllDoctors = catchAsync(async (req, res) => {
   const result = await getAllDoctorsFromDB();
@@ -26,4 +31,28 @@ const getSingleDoctor = catchAsync(async (req, res) => {
   });
 });
 
-export { getAllDoctors, getSingleDoctor };
+const softDeleteDoctor = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await softDeleteDoctorIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Doctor deleted successfully!",
+    data: result,
+  });
+});
+
+const deleteDoctor = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await deleteDoctorIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Doctor deleted successfully!",
+    data: result,
+  });
+});
+
+export { deleteDoctor, getAllDoctors, getSingleDoctor, softDeleteDoctor };
