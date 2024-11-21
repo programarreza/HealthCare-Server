@@ -29,4 +29,10 @@ const createSpecialtiesIntoDB = async (req: Request) => {
   return result;
 };
 
-export { createSpecialtiesIntoDB };
+const getAllSpecialtiesFromDB = async () => {
+  const result = await prisma.specialties.findMany();
+
+  return result;
+};
+
+export { createSpecialtiesIntoDB, getAllSpecialtiesFromDB };
