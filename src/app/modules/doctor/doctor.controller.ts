@@ -6,6 +6,7 @@ import {
   getAllDoctorsFromDB,
   getSingleDoctorFromDB,
   softDeleteDoctorIntoDB,
+  updateDoctorIntoDB,
 } from "./doctor.services";
 
 const getAllDoctors = catchAsync(async (req, res) => {
@@ -55,4 +56,22 @@ const deleteDoctor = catchAsync(async (req, res) => {
   });
 });
 
-export { deleteDoctor, getAllDoctors, getSingleDoctor, softDeleteDoctor };
+const updateDoctor = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await updateDoctorIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Doctor updated successfully!",
+    data: result,
+  });
+});
+
+export {
+  deleteDoctor,
+  getAllDoctors,
+  getSingleDoctor,
+  softDeleteDoctor,
+  updateDoctor,
+};
