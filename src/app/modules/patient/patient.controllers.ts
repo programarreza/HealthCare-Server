@@ -7,6 +7,7 @@ import {
   deletePatientIntoDB,
   getAllPatientFromDB,
   getSinglePatientFromDB,
+  softDeletePatientFromDB,
   updatePatientIntoDB,
 } from "./patient.services";
 
@@ -62,4 +63,22 @@ const deletePatient = catchAsync(async (req, res) => {
   });
 });
 
-export { deletePatient, getAllPatients, getSinglePatient, updatePatient };
+const softDeletePatient = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await softDeletePatientFromDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Patient deleted successfully!",
+    data: result,
+  });
+});
+
+export {
+  deletePatient,
+  getAllPatients,
+  getSinglePatient,
+  softDeletePatient,
+  updatePatient,
+};

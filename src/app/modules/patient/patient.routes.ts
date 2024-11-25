@@ -3,6 +3,7 @@ import {
   deletePatient,
   getAllPatients,
   getSinglePatient,
+  softDeletePatient,
   updatePatient,
 } from "./patient.controllers";
 
@@ -12,5 +13,6 @@ patientRoutes.get("/", getAllPatients);
 patientRoutes.get("/:id", getSinglePatient);
 patientRoutes.patch("/:id", updatePatient);
 patientRoutes.delete("/:id", deletePatient);
+patientRoutes.delete("/soft/:id", softDeletePatient);
 
 export default patientRoutes;
