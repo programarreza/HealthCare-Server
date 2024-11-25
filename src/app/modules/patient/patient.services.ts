@@ -157,4 +157,61 @@ const updatePatientIntoDB = async (
   return responseData;
 };
 
-export { getAllPatientFromDB, getSinglePatientFromDB, updatePatientIntoDB };
+const deletePatientIntoDB = async (id: string) => {
+  // patient data
+  const patientInfo = await prisma.patient.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    include: {
+      medicalReport: true,
+      patientHealthData: true,
+    },
+  });
+
+  console.log({ patientInfo });
+
+  const result = await prisma.$transaction(async (tx) => {
+    // delete medical report
+    if (patientInfo.medicalReport.length > 0)
+      await tx.medicalReport.deleteMany({
+        where: {
+          patientId: id,
+        },
+      });
+
+    // delete patient health data
+    if (patientInfo.patientHealthData) {
+      await tx.patientHealthData.delete({
+        where: {
+          patientId: id,
+        },
+      });
+    }
+
+    // delete patient data
+    const deletedPatient = await tx.patient.delete({
+      where: {
+        id,
+      },
+    });
+
+    // delete user
+    await tx.user.delete({
+      where: {
+        email: deletedPatient.email,
+      },
+    });
+
+    return deletedPatient;
+  });
+
+  return result;
+};
+
+export {
+  deletePatientIntoDB,
+  getAllPatientFromDB,
+  getSinglePatientFromDB,
+  updatePatientIntoDB,
+};
