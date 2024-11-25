@@ -6,6 +6,7 @@ import { patientFilterableFields } from "./patient.constant";
 import {
   getAllPatientFromDB,
   getSinglePatientFromDB,
+  updatePatientIntoDB,
 } from "./patient.services";
 
 const getAllPatients = catchAsync(async (req, res) => {
@@ -36,4 +37,16 @@ const getSinglePatient = catchAsync(async (req, res) => {
   });
 });
 
-export { getAllPatients, getSinglePatient };
+const updatePatient = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await updatePatientIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Patient updated successfully!",
+    data: result,
+  });
+});
+
+export { getAllPatients, getSinglePatient, updatePatient };

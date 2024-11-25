@@ -1,9 +1,10 @@
 import { Patient, Prisma } from "@prisma/client";
+import dayjs from "dayjs";
 import { calculatePagination } from "../../../helpers/pagination.helpers";
 import prisma from "../../../shared/prisma";
 import { TPaginationOptions } from "../../interfaces/TPasination";
 import { patientSearchAbleField } from "./patient.constant";
-import { TPatientFilterRequest } from "./patient.interface";
+import { TPatientFilterRequest, TPatientUpdate } from "./patient.interface";
 
 const getAllPatientFromDB = async (
   params: TPatientFilterRequest,
@@ -91,4 +92,69 @@ const getSinglePatientFromDB = async (id: string): Promise<Patient | null> => {
   return result;
 };
 
-export { getAllPatientFromDB, getSinglePatientFromDB };
+const updatePatientIntoDB = async (
+  id: string,
+  payload: Partial<TPatientUpdate>
+): Promise<Patient | null> => {
+  const { patientHealthData, medicalReport, ...patientData } = payload;
+
+  // convert to ISOformat of dateOfBirth
+  if (patientHealthData && patientHealthData.dateOfBirth) {
+    patientHealthData.dateOfBirth = dayjs(
+      patientHealthData.dateOfBirth
+    ).toISOString();
+  }
+
+  // checking patient data
+  const patientInfo = await prisma.patient.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  await prisma.$transaction(async (transactionClient) => {
+    // operation-1: update patient data
+    await transactionClient.patient.update({
+      where: {
+        id,
+      },
+      data: patientData,
+      include: {
+        patientHealthData: true,
+        medicalReport: true,
+      },
+    });
+
+    // operation-2: create or update patient health data
+    if (patientHealthData) {
+      await transactionClient.patientHealthData.upsert({
+        where: {
+          patientId: patientInfo.id,
+        },
+        update: patientHealthData,
+        create: { ...patientHealthData, patientId: patientInfo.id },
+      });
+    }
+
+    // operation-3: create or update medical report data
+    if (medicalReport) {
+      await transactionClient.medicalReport.create({
+        data: { ...medicalReport, patientId: patientInfo.id },
+      });
+    }
+  });
+
+  const responseData = await prisma.patient.findUnique({
+    where: {
+      id: patientInfo.id,
+    },
+    include: {
+      patientHealthData: true,
+      medicalReport: true,
+    },
+  });
+
+  return responseData;
+};
+
+export { getAllPatientFromDB, getSinglePatientFromDB, updatePatientIntoDB };

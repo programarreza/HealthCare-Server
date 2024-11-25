@@ -25,7 +25,7 @@ type TPatientHealthData = {
   maritalStatus?: MaritalStatus;
 };
 
-type IMedicalReport = {
+type TMedicalReport = {
   reportName: string;
   reportLink: string;
 };
@@ -35,5 +35,5 @@ export type TPatientUpdate = {
   contactNumber: string;
   address: string;
   patientHealthData: TPatientHealthData;
-  medicalReport: IMedicalReport;
+  medicalReport: TMedicalReport;
 };
