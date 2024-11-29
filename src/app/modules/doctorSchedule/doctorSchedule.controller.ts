@@ -1,7 +1,11 @@
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../../shared/catchAsync";
+import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
-import { createDoctorScheduleIntoDB } from "./doctorSchedule.services";
+import {
+  createDoctorScheduleIntoDB,
+  getMyDoctorScheduleFromDB,
+} from "./doctorSchedule.services";
 
 const createDoctorSchedule = catchAsync(async (req, res) => {
   const user = req.user;
@@ -15,4 +19,19 @@ const createDoctorSchedule = catchAsync(async (req, res) => {
   });
 });
 
-export { createDoctorSchedule };
+const getMyDoctorSchedule = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ["startDate", "endDate", "isBooked"]);
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+  const user = req.user;
+  const result = await getMyDoctorScheduleFromDB(filters, options, user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My doctorSchedules retrieved successfully!",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+export { createDoctorSchedule, getMyDoctorSchedule };
