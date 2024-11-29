@@ -4,6 +4,7 @@ import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
 import {
   createDoctorScheduleIntoDB,
+  deleteMyDoctorScheduleIntoDB,
   getMyDoctorScheduleFromDB,
 } from "./doctorSchedule.services";
 
@@ -34,4 +35,17 @@ const getMyDoctorSchedule = catchAsync(async (req, res) => {
   });
 });
 
-export { createDoctorSchedule, getMyDoctorSchedule };
+const deleteMyDoctorSchedule = catchAsync(async (req, res) => {
+  const user = req.user;
+  const { id } = req.params;
+  const result = await deleteMyDoctorScheduleIntoDB(user, id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My doctorSchedules deleted successfully!",
+    data: result,
+  });
+});
+
+export { createDoctorSchedule, getMyDoctorSchedule, deleteMyDoctorSchedule };
