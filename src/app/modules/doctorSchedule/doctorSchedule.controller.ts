@@ -5,6 +5,7 @@ import sendResponse from "../../../shared/sendResponse";
 import {
   createDoctorScheduleIntoDB,
   deleteMyDoctorScheduleIntoDB,
+  getAllDoctorSchedulesFromDB,
   getMyDoctorScheduleFromDB,
 } from "./doctorSchedule.services";
 
@@ -35,6 +36,21 @@ const getMyDoctorSchedule = catchAsync(async (req, res) => {
   });
 });
 
+const getAllDoctorSchedules = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ["startDate", "endDate", "isBooked"]);
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+
+  const result = await getAllDoctorSchedulesFromDB(filters, options);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "doctorSchedules retrieved successfully!",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 const deleteMyDoctorSchedule = catchAsync(async (req, res) => {
   const user = req.user;
   const { id } = req.params;
@@ -48,4 +64,9 @@ const deleteMyDoctorSchedule = catchAsync(async (req, res) => {
   });
 });
 
-export { createDoctorSchedule, getMyDoctorSchedule, deleteMyDoctorSchedule };
+export {
+  createDoctorSchedule,
+  deleteMyDoctorSchedule,
+  getAllDoctorSchedules,
+  getMyDoctorSchedule,
+};

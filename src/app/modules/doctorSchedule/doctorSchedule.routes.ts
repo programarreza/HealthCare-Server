@@ -4,6 +4,7 @@ import auth from "../../middleware/auth";
 import {
   createDoctorSchedule,
   deleteMyDoctorSchedule,
+  getAllDoctorSchedules,
   getMyDoctorSchedule,
 } from "./doctorSchedule.controller";
 
@@ -15,6 +16,12 @@ doctorScheduleRoutes.get(
   "/my-schedule",
   auth(UserRole.DOCTOR),
   getMyDoctorSchedule
+);
+
+doctorScheduleRoutes.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+  getAllDoctorSchedules
 );
 
 doctorScheduleRoutes.delete(
