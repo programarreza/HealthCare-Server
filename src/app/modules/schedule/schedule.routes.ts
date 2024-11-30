@@ -1,7 +1,12 @@
 import { UserRole } from "@prisma/client";
 import { Router } from "express";
 import auth from "../../middleware/auth";
-import { createSchedule, getAllSchedule } from "./schedule.controller";
+import {
+  createSchedule,
+  deleteSchedule,
+  getAllSchedule,
+  getSingleSchedule,
+} from "./schedule.controller";
 
 const scheduleRoutes = Router();
 
@@ -13,8 +18,20 @@ scheduleRoutes.post(
 
 scheduleRoutes.get(
   "/",
-  auth(UserRole.DOCTOR),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
   getAllSchedule
+);
+
+scheduleRoutes.get(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+  getSingleSchedule
+);
+
+scheduleRoutes.delete(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  deleteSchedule
 );
 
 export default scheduleRoutes;

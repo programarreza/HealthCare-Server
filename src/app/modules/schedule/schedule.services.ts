@@ -1,8 +1,10 @@
 import { Prisma, Schedule } from "@prisma/client";
 import { addHours, addMinutes, format } from "date-fns";
+import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { calculatePagination } from "../../../helpers/pagination.helpers";
 import prisma from "../../../shared/prisma";
+import ApiError from "../../error/ApiError";
 import { TPaginationOptions } from "../../interfaces/TPasination";
 import { TFilterRequest, TSchedule } from "./schedule.interface";
 
@@ -167,4 +169,68 @@ const getAllScheduleFromDB = async (
   };
 };
 
-export { createScheduleIntoDB, getAllScheduleFromDB };
+const getSingleScheduleFromDB = async (id: string) => {
+  const result = await prisma.schedule.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
+const deleteScheduleIntoDB = async (user: JwtPayload, scheduleId: string) => {
+  // find schedule data
+  const scheduleData = await prisma.schedule.findFirst({
+    where: {
+      id: scheduleId,
+    },
+    include: {
+      doctorSchedules: true,
+    },
+  });
+
+  if (!scheduleData) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "schedule not found!");
+  }
+
+  const isBookedSchedule = await prisma.doctorSchedules.findMany({
+    where: {
+      scheduleId,
+    },
+  });
+
+  if (isBookedSchedule.length > 0) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "You can not delete the schedule. because of the schedule is already booked!"
+    );
+  }
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    // Step-1: delete from doctorSchedules
+    await transactionClient.doctorSchedules.deleteMany({
+      where: {
+        scheduleId,
+      },
+    });
+
+    // Step-2: delete from schedule
+    const deletedScheduleData = await prisma.schedule.delete({
+      where: {
+        id: scheduleId, // schedule id
+      },
+    });
+
+    return deletedScheduleData;
+  });
+
+  return result;
+};
+
+export {
+  createScheduleIntoDB,
+  deleteScheduleIntoDB,
+  getAllScheduleFromDB,
+  getSingleScheduleFromDB,
+};

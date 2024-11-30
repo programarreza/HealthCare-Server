@@ -129,8 +129,6 @@ const deleteMyDoctorScheduleIntoDB = async (
     },
   });
 
-  console.log({ isBookedSchedule });
-
   if (isBookedSchedule) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,

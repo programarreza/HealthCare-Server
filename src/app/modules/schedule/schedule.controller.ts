@@ -4,7 +4,9 @@ import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
 import {
   createScheduleIntoDB,
+  deleteScheduleIntoDB,
   getAllScheduleFromDB,
+  getSingleScheduleFromDB,
 } from "./schedule.services";
 
 const createSchedule = catchAsync(async (req, res) => {
@@ -21,7 +23,7 @@ const createSchedule = catchAsync(async (req, res) => {
 const getAllSchedule = catchAsync(async (req, res) => {
   const filters = pick(req.query, ["startDate", "endDate"]);
   const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
-const user = req.user;
+  const user = req.user;
   const result = await getAllScheduleFromDB(filters, options, user);
 
   sendResponse(res, {
@@ -33,4 +35,29 @@ const user = req.user;
   });
 });
 
-export { createSchedule, getAllSchedule };
+const getSingleSchedule = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await getSingleScheduleFromDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Schedule retrieved successfully!",
+    data: result,
+  });
+});
+
+const deleteSchedule = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const user = req.user;
+  const result = await deleteScheduleIntoDB(user, id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Schedule deleted successfully!",
+    data: result,
+  });
+});
+
+export { createSchedule, deleteSchedule, getAllSchedule, getSingleSchedule };
