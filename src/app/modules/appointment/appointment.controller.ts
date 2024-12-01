@@ -1,7 +1,11 @@
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../../shared/catchAsync";
+import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
-import { createAppointmentIntoDB } from "./appointment.services";
+import {
+  createAppointmentIntoDB,
+  getMyAppointmentsFromDB,
+} from "./appointment.services";
 
 const createAppointment = catchAsync(async (req, res) => {
   const user = req.user;
@@ -15,4 +19,18 @@ const createAppointment = catchAsync(async (req, res) => {
   });
 });
 
-export { createAppointment };
+const getMyAppointments = catchAsync(async (req, res) => {
+  const user = req.user;
+  const filters = pick(req.query, ["status", "paymentStatus"]);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await getMyAppointmentsFromDB(user, filters, options);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My appointments retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createAppointment, getMyAppointments };
