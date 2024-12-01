@@ -65,6 +65,16 @@ const createAppointmentIntoDB = async (user: JwtPayload, payload: any) => {
       },
     });
 
+    // Step-3: create payment data
+    const transactionId = `health-care-${uuidv4().slice(0, 6)}`;
+    await transactionClient.payment.create({
+      data: {
+        appointmentId: appointmentData.id,
+        amount: doctorData.appointmentFee,
+        transactionId,
+      },
+    });
+
     return appointmentData;
   });
 
