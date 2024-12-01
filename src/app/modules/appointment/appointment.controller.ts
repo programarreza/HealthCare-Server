@@ -4,6 +4,7 @@ import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
 import {
   createAppointmentIntoDB,
+  getAllAppointmentsFromDB,
   getMyAppointmentsFromDB,
 } from "./appointment.services";
 
@@ -33,4 +34,17 @@ const getMyAppointments = catchAsync(async (req, res) => {
   });
 });
 
-export { createAppointment, getMyAppointments };
+const getAllAppointments = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ["status", "paymentStatus"]);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await getAllAppointmentsFromDB(filters, options);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "All appointments retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createAppointment, getMyAppointments, getAllAppointments };
