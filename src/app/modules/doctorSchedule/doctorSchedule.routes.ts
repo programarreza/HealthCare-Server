@@ -20,7 +20,7 @@ doctorScheduleRoutes.get(
 
 doctorScheduleRoutes.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
   getAllDoctorSchedules
 );
 
